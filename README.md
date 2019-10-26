@@ -16,7 +16,7 @@ cd <upfrouter directory>
 cmake -DCMAKE_BUILD_TYPE=Release .
 make
 
-cd <upfrouter directory>/click/lvnfs2
+cd <upfclick directory>
 autoconf
 ./configure --prefix=/usr/local
 make
