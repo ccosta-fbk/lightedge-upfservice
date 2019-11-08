@@ -11,35 +11,63 @@ top_builddir := .
 subdir := .
 
 ######################################################################
-# UPFRouter libraries
+# UPFlib libraries
 #
-# Note: despite being archive librarires, these are all
-#       compiled with -fPIC -DPIC, so the object files inside them
-#       are also suitable to be part of a shared library.
+# Note: the archive versions of these libraries are all compiled with
+#       -fPIC -DPIC, so the object files inside them are also suitable
+#       to be part of a shared library.
 #
-upfrouter_topdir := ../..
+upfrouter_topdir := @UPFLIB_PREFIX@
 
-upfrouter_includes := $(upfrouter_topdir)/lib/includes
+upfrouter_includes := $(upfrouter_topdir)/include
 
-upfrouter_libdir := $(upfrouter_topdir)/lib/src
+upfrouter_libdir := $(upfrouter_topdir)/lib
 
-upfrouter_networklib_dir := $(upfrouter_libdir)/networklib
-upfrouter_asn1lib_dir := $(upfrouter_libdir)/asn1lib
-upfrouter_s1aplib_dir := $(upfrouter_libdir)/s1aplib
-upfrouter_upfrouterlib_dir := $(upfrouter_libdir)/upfrouterlib
-upfrouter_dumperlib_dir := $(upfrouter_libdir)/dumperlib
+upfrouter_networklib_dir := $(upfrouter_libdir)
+upfrouter_asn1lib_dir := $(upfrouter_libdir)
+upfrouter_s1aplib_dir := $(upfrouter_libdir)
+upfrouter_upfrouterlib_dir := $(upfrouter_libdir)
+upfrouter_dumperlib_dir := $(upfrouter_libdir)
 
-upfrouter_networklib := $(upfrouter_networklib_dir)/libNetworkLib.a
-upfrouter_asn1lib := $(upfrouter_asn1lib_dir)/libASN1Lib.a
-upfrouter_s1aplib := $(upfrouter_s1aplib_dir)/libS1APLib.a
+
+# Static libraries
+upfrouter_networklib := $(upfrouter_networklib_dir)/libUPFNetworkLib.a
+upfrouter_asn1lib := $(upfrouter_asn1lib_dir)/libUPFASN1Lib.a
+upfrouter_s1aplib := $(upfrouter_s1aplib_dir)/libUPFS1APLib.a
 upfrouter_upfrouterlib := $(upfrouter_upfrouterlib_dir)/libUPFRouterLib.a
-upfrouter_dumperlib = $(upfrouter_dumperlib_dir)/libDumperLib.a
+upfrouter_dumperlib = $(upfrouter_dumperlib_dir)/libUPFDumperLib.a
 
+# Compiler/Linker switches to static link UPFlib libraries into the
+# resulting Click package. See PACKAGE_LIBS below.
+#
 # Note: '-Wl,--whole-archive' tells the linker to include all
 #       the object files in the libraries, and then
 #       '-Wl,--no-whole-archive' tells to cease doing that
-upfrouter_libraries := \
-	-Wl,--whole-archive $(upfrouter_upfrouterlib) $(upfrouter_s1aplib) $(upfrouter_asn1lib) $(upfrouter_networklib) $(upfrouter_dumperlib) -Wl,--no-whole-archive
+upfrouter_static_libraries := \
+	-Wl,--whole-archive \
+		$(upfrouter_upfrouterlib) \
+		$(upfrouter_s1aplib) \
+		$(upfrouter_asn1lib) \
+		$(upfrouter_networklib) \
+		$(upfrouter_dumperlib) \
+	-Wl,--no-whole-archive
+
+
+# Shared (dynamic) libraries
+upfrouter_networklib_shared := -L$(upfrouter_networklib_dir) -lUPFNetworkLib
+upfrouter_asn1lib_shared := -L$(upfrouter_asn1lib_dir) -lUPFASN1Lib
+upfrouter_s1aplib_shared := -L$(upfrouter_s1aplib_dir) -lUPFS1APLib
+upfrouter_upfrouterlib_shared := -L$(upfrouter_upfrouterlib_dir) -lUPFRouterLib
+upfrouter_dumperlib_shared := -L$(upfrouter_dumperlib_dir) -lUPFDumperLib
+
+# Compiler/Linker switches to dynamically link UPFlib libraries. See
+# PACKAGE_LIBS below.
+upfrouter_shared_libraries := \
+	$(upfrouter_upfrouterlib_shared) \
+	$(upfrouter_s1aplib_shared) \
+	$(upfrouter_asn1lib_shared) \
+	$(upfrouter_networklib_shared) \
+	$(upfrouter_dumperlib_shared)
 #
 ######################################################################
 
@@ -67,8 +95,14 @@ KVERSIONFLAGS = --gpl
 DEFS = @DEFS@ $(CLICKDEFS)
 INCLUDES = -I. -I$(top_builddir) -I$(srcdir) $(CLICKINCLUDES) -I$(upfrouter_includes)
 
-# Added to link in UPFRouter libraries
-PACKAGE_LIBS = $(upfrouter_libraries) 
+# Added to link in UPFRouter static libraries
+# PACKAGE_LIBS = $(upfrouter_static_libraries)
+
+# Added to link with UPFRouter shared libraries
+#PACKAGE_LIBS = $(upfrouter_shared_libraries)
+
+# Let ./configure decide this
+PACKAGE_LIBS = @UPFLIB_LINKOPTS@
 
 # Set this variable to force 'click-elem2package' to include a header,
 # such as your package's '<config.h>', if necessary.

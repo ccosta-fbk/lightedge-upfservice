@@ -1,40 +1,3 @@
-# Click Modular Router UPF Packages
-
-This repository contains a package of external elements for the
-[Click Modular Router](https://github.com/kohler/click),
-compiled as shared libraries.
-
-To build them you will need a Click installation somewhere.
-
-# Build Instructions
-
-Assuming Click was installed in the default location
-(i.e. `/usr/local/...`), the whole build process is:
-
-```
-cd <upfrouter directory>
-cmake -DCMAKE_BUILD_TYPE=Release .
-make
-
-cd <upfclick directory>
-autoconf
-./configure --prefix=/usr/local
-make
-sudo make install
-```
-
-This:
-
-1. builds the UPF libraries and sample executables;
-
-2. then it builds the Click Element(s) as a shared library containing
-   evertything (it includes the UPF libraries). It also builds an
-   element map for Click, describing the new elements;
-
-3. then installs both the shared library and the element map into
-   Click's installation directories -- so the Click runtime can find
-   them (and load them on startup, if required).
-
 # Click elements
 
 This is a Click external package providing three new Click elements:
@@ -78,6 +41,37 @@ This is a Click external package providing three new Click elements:
    able to write `.pcap` files containing raw Ethernet frames.
 
    It has just one input port, and its processing policy is AGNOSTIC.
+
+# Building and installing
+
+You need a working Click installation, and the UPFlib libraries and
+headers installed somehwere (by default they are searched in
+/usr/local).
+
+
+If both Click and UPFlib libraries are installed in `/usr/local`, just
+use
+```
+configure
+make
+make install
+```
+
+Otherwise, if Click and/or UPFlib are installed elsewhere, use the
+specific options of `configure` to specify where they are located.
+For example:
+
+```
+configure --with-click=<click_install_prefix> --with-upflib=<upflib_install_prefix>
+make
+make install
+```
+
+
+By default, the Click package is statically linked with UPFlib
+libraries (this is possibile as UPFlib archive libraries are compiled
+with `-fPIC -DPIC`). It's possible to use shared libraries with
+option `--with-upflib-shared=yes` of `configure`.
 
 # Sample Click configuration for UPFRouter
 

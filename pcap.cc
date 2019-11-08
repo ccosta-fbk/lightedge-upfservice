@@ -18,9 +18,9 @@
 CLICK_DECLS
 // clang-format on
 
-//////////////////////
+/////////////////////////
 // UPFRouterPcapReader //
-//////////////////////
+/////////////////////////
 
 int UPFRouterPcapReader::configure(Vector<String> &conf, ErrorHandler *errh) {
 

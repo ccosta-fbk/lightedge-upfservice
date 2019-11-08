@@ -7,7 +7,9 @@
 CLICK_DECLS
 // clang-format on
 
-#include <s1aplib/s1aplib.hh>
+#include <upfs1aplib/s1aplib.hh>
+
+using namespace UPF;
 
 /*
  * =c

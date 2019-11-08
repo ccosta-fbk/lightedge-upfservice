@@ -20,6 +20,25 @@ AC_SUBST(CLICKPACKAGENAME)
 
 
 dnl
+dnl UPFlib install prefix
+dnl
+AC_ARG_WITH(upflib, [  --with-upflib[[=DIR]]     UPFLib install prefix is DIR [[PREFIX]]],
+            [UPFLIB_PREFIX=$withval; if test -z "$withval" -o "$withval" = yes; then UPFLIB_PREFIX=$prefix; fi],
+            UPFLIB_PREFIX=$prefix)
+
+AC_SUBST(UPFLIB_PREFIX)
+
+dnl
+dnl Allow dinamic linking with UPFlib libraries
+dnl
+AC_ARG_WITH(upflib-shared, [  --with-upflib-shared     Dynamically link UPFlib libraries],
+            [if test -z "$withval" -o "$withval" = yes; then UPFLIB_LINKOPTS="\$(upfrouter_shared_libraries)"; fi],
+            UPFLIB_LINKOPTS="\$(upfrouter_static_libraries)")
+
+AC_SUBST(UPFLIB_LINKOPTS)
+
+
+dnl
 dnl locate Click install directory
 dnl
 

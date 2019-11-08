@@ -33,9 +33,9 @@ CLICK_DECLS
 // clang-format on
 
 // Non-Click includes
-#include <networklib/networklib.hh>
-#include <s1aplib/s1aplib.hh>
-#include <dumperlib/dumper.hh>
+#include <upfnetworklib/networklib.hh>
+#include <upfs1aplib/s1aplib.hh>
+#include <upfdumperlib/dumper.hh>
 
 #include <sstream>
 

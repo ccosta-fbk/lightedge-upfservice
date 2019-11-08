@@ -6,11 +6,13 @@
 CLICK_DECLS
 // clang-format on
 
-#include <networklib/networklib.hh>
+#include <upfnetworklib/networklib.hh>
 #include <upfrouterlib/upfrouterlib.hh>
 
 // For std::unique_ptr<T>
 #include <memory>
+
+using namespace UPF;
 
 /*
  * =c
