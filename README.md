@@ -1,6 +1,8 @@
 # Click elements
 
-This is a Click external package providing three new Click elements:
+This is a Click external package (built as a dynamic library that can
+be loaded as a runtime module by Click) providing three new Click
+elements:
 
 1. **UPFRouter** is an element intercepting and routing all traffic
    between eNodeBs, EPC and VNFs (see section [UPFRouter
@@ -44,9 +46,9 @@ This is a Click external package providing three new Click elements:
 
 # Building and installing
 
-You need a working Click installation, and the UPFlib libraries and
-headers installed somehwere (by default they are searched in
-/usr/local).
+You need a working Click installation and the archive version of the
+UPFlib libraries (and related headers) installed somehwere. By default
+they are both searched in `/usr/local`.
 
 
 If both Click and UPFlib libraries are installed in `/usr/local`, just
@@ -54,7 +56,7 @@ use
 ```
 configure
 make
-make install
+sudo make install
 ```
 
 Otherwise, if Click and/or UPFlib are installed elsewhere, use the
@@ -69,9 +71,9 @@ make install
 
 
 By default, the Click package is statically linked with UPFlib
-libraries (this is possibile as UPFlib archive libraries are compiled
-with `-fPIC -DPIC`). It's possible to use shared libraries with
-option `--with-upflib-shared=yes` of `configure`.
+libraries, so everything is included in the resulting files
+(this is possibile as UPFlib archive libraries are compiled
+with `-fPIC -DPIC`).
 
 # Sample Click configuration for UPFRouter
 
