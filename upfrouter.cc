@@ -128,6 +128,86 @@ packetCameFromENodeB(NetworkLib::EthPacketProcessor::Context &context) {
     return (getClickInputPortFromContext(context) == 1);
 }
 
+/// @brief Similar to Click's configuration parsing function
+///        `skip_spacevec_item()`, but instead using spaces as
+///        delimiters, it looks for comma (`,`), end-of-line and start
+///        of comments.
+static const char *upf_skip_commavec_item(const char *s, const char *end) {
+    while (s < end) {
+        switch (*s) {
+
+        case '/':
+            // a comment ends the item
+            if (s + 1 < end && (s[1] == '/' || s[1] == '*'))
+                return s;
+            s++;
+            break;
+
+            // A comma or a newline ends the item
+        case ',':
+        case '\n':
+            return s;
+
+        default:
+            s++;
+            break;
+        }
+    }
+    return s;
+}
+
+/// @brief Equivalent to Click's `skip_comment()`. Unfortunately, it's
+///        a static function, so we can't reuse it.
+const char *upf_skip_comment(const char *s, const char *end) {
+    if (s[1] == '/') {
+        // comment to end-of-line
+        for (s += 2; s < end; ++s) {
+            if ((*s == '\n') || (*s == '\r')) {
+                return s + 1;
+            }
+        }
+
+        return end;
+    } else {
+        // multi-line comment
+        for (s += 2; (s + 2) < end; ++s) {
+            if (s[0] == '*' && s[1] == '/') {
+                return s + 2;
+            }
+        }
+
+        return end;
+    }
+}
+
+/// @brief Similar to Click's configuration parsing function
+///        `cp_skip_comment_space()`, but it searches for the first
+///        non-comma character.
+const char *upf_cp_skip_comment_comma(const char *begin, const char *end) {
+    for (; begin < end; begin++) {
+        if (*begin == ',')
+            /* nada */;
+        else if (*begin == '/' && begin + 1 < end &&
+                 (begin[1] == '/' || begin[1] == '*'))
+            begin = upf_skip_comment(begin, end) - 1;
+        else
+            break;
+    }
+    return begin;
+}
+
+/// @brief Similar to Click's configuration parsing function
+///        `cp_shift_spacevec()`, but items are separated by comma
+///        (`,`) or end-of-line instead of spaces.
+String upf_cp_shift_commavec(String &str) {
+    const char *item = upf_cp_skip_comment_comma(str.begin(), str.end());
+    const char *item_end = upf_skip_commavec_item(item, str.end());
+    String answer = str.substring(item, item_end);
+    item_end = upf_cp_skip_comment_comma(item_end, str.end());
+    str = str.substring(item_end, str.end());
+    return answer;
+}
+
 //////////////////////////////////////////////////////////////////////
 
 int UPFRouter::configure(Vector<String> &conf, ErrorHandler *errh) {
@@ -595,9 +675,9 @@ String UPFRouter::rh_UEMap(void *) {
 
     for (auto const &it : mRouter.getUEMap()) {
 
-        res << it.first << " -> " << it.second.eNBEndPoint.ipAddress << ':'
-            << NetworkLib::asHex32(it.second.eNBEndPoint.teid) << " <-> "
-            << it.second.epcEndPoint.ipAddress << ':'
+        res << it.first << ',' << it.second.eNBEndPoint.ipAddress << ','
+            << NetworkLib::asHex32(it.second.eNBEndPoint.teid) << ','
+            << it.second.epcEndPoint.ipAddress << ','
             << NetworkLib::asHex32(it.second.epcEndPoint.teid) << '\n';
     }
 
@@ -607,9 +687,9 @@ String UPFRouter::rh_UEMap(void *) {
 String UPFRouter::rh_MatchMap(void *) {
     std::ostringstream res;
 
+    int i = 0;
     for (auto const &it : mRuleMatcher.getRules()) {
-
-        res << it << '\n';
+        res << ++i << ',' << it << '\n';
     }
 
     return String(res.str().c_str());
@@ -621,7 +701,7 @@ int UPFRouter::wh_MatchMap_insert(const String &str, void *,
     String nextWord;
     int position;
 
-    nextWord = cp_shift_spacevec(entry);
+    nextWord = upf_cp_shift_commavec(entry);
 
     if (!IntArg().parse(nextWord, position)) {
         errh->error(
@@ -637,7 +717,7 @@ int UPFRouter::wh_MatchMap_insert(const String &str, void *,
         return -1;
     }
 
-    nextWord = cp_shift_spacevec(entry);
+    nextWord = upf_cp_shift_commavec(entry);
 
     UPFRouterLib::MatchingRule rule;
 
@@ -664,7 +744,7 @@ int UPFRouter::wh_MatchMap_append(const String &str, void *vparam,
 
     while (true) {
 
-        nextWord = cp_shift_spacevec(entry);
+        nextWord = upf_cp_shift_commavec(entry);
 
         if (nextWord.length() == 0) {
             // No next word
@@ -697,7 +777,7 @@ int UPFRouter::wh_MatchMap_delete(const String &str, void *vparam,
 
     (void)vparam;
 
-    nextWord = cp_shift_spacevec(entry);
+    nextWord = upf_cp_shift_commavec(entry);
 
     if (!IntArg().parse(nextWord, position)) {
         errh->error(
