@@ -152,8 +152,9 @@ write upfr.matchmapins 0 6-192.168.13.0/24-80
 ```
 
 ## Append MatchMap entries at end (no position)
-
+```
 write upfr.matchmapappend 6-192.168.13.0/24-80
+```
 
 ## Delete MatchMap entry at given position
 ```
