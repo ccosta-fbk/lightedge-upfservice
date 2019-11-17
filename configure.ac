@@ -15,7 +15,7 @@ dnl legally binding.
 AC_INIT(click-upfrouterpackage, 2.0.1)
 AC_SUBST(ac_configure_args)
 
-CLICKPACKAGENAME=lvnfs2
+CLICKPACKAGENAME=upf
 AC_SUBST(CLICKPACKAGENAME)
 
 
