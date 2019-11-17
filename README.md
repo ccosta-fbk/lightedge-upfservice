@@ -78,8 +78,7 @@ with `-fPIC -DPIC`).
 # Sample Click configuration for UPFRouter
 
 ```
-
-require(package "lvnfs2"); ControlSocket("TCP", 7777);
+require(package "upf"); ControlSocket("TCP", 7777);
 
 upfr :: UPFRouter()
 
@@ -91,13 +90,11 @@ s_server :: Socket("UDP", ADDR 0.0.0.0, PORT 5555);
 
 ktgw :: KernelTun(ADDR 10.90.90.1/24, DEVNAME tun1);
 
-
 s_server
         -> Print("from s_server[0] to [0]CheckIPHeader", MAXLENGTH 0)
         -> CheckIPHeader()
         -> Print("from CheckIPHeader[0] to [0]Print", MAXLENGTH 0)
         -> IPReassembler()
-        // -> Queue(50)
         -> Print("from Print[0] to [1]upfr", MAXLENGTH 0)
         -> [1]upfr;
 
@@ -105,7 +102,6 @@ kt
         -> Print("from kt[0] to [0]CheckIPHeader", MAXLENGTH 0)
         -> CheckIPHeader()
         -> IPReassembler()
-        // -> Queue(50)
         -> [0]upfr;
 
 
@@ -126,7 +122,6 @@ upfr[2]
 
 ktgw
         -> Print("from ktgw[0] to [2]upfr", MAXLENGTH 0)
-        //-> Queue(50)
         -> [2]upfr;
 ```
 
@@ -135,7 +130,7 @@ ktgw
 ```
 #!/bin/sh
 
-click myscript2.click &
+click myscript.click &
 
 sleep 3
 # Setup tun device (ensure env variable $enbs_subnet is set)
@@ -170,8 +165,6 @@ write upfr.matchmapdel 0
 read upfr.matchmap
 ```
 
-
-
 ## Disable UDP checksums on encapsulated GTPv1-U traffic
 
 ```
@@ -185,7 +178,6 @@ write upfr.enableunknowntrafficdump false
 ```
 
 # UPFRouter maps and configuration items
-
 
 1. UEMap: map of known UE -> GTP tunnel endpoints
 
