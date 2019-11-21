@@ -1,3 +1,6 @@
+## build : docker build -t lightedge-upfservice .
+## run :   docker run --net=host --rm --privileged -it lightedge-upfservice-
+
 FROM ubuntu:18.04
 MAINTAINER g.baggio@fbk.eu
 
